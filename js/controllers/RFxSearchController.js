@@ -1,22 +1,23 @@
-searchApp.controller('Twitter', function ($scope, ejsResource) {
-    var ejs = ejsResource('http://localhost:9200');
-    var index = 'twitter';
+searchApp.controller('RFxsearch', function ($scope, ejsResource) {
+    var ejs = ejsResource('http://192.168.59.103:9200');
+    var index = 'rfxsearch_v1';
 
-    var highlightPost = ejs.Highlight(["text"])
-        .fragmentSize(150, "text")
-        .numberOfFragments(1, "text")
-        .preTags("<b>", "text")
-        .postTags("</b>", "text");
+/*
+    var highlightPost = ejs.Highlight(["Question"])
+        .fragmentSize(150, "Question")
+        .numberOfFragments(1, "Question")
+        .preTags("<b>", "Question")
+        .postTags("</b>", "Question");
 
-    var hashtagFacet = ejs.TermsFacet('Hashtag')
-        .field('hashtag.text')
+    var hashtagFacet = ejs.TermsFacet('Question')
+        .field('Question.text')
         .size(10);
-
+*/
     var statusRequest = ejs.Request()
         .indices(index)
-        .types('status')
-        .highlight(highlightPost)
-        .facet(hashtagFacet);
+//        .types('sometype')
+//        .highlight(highlightPost)
+//        .facet(hashtagFacet);
 
     var activeFilters = {};
 
@@ -27,9 +28,13 @@ searchApp.controller('Twitter', function ($scope, ejsResource) {
         $scope.resultsArr = [];
         if (!$scope.queryTerm == '') {
             results = statusRequest
-                .query(applyFilters(ejs.MatchQuery('_all', $scope.queryTerm)))
-                .fields(['text', 'user', 'created_at'])
+//                .query(applyFilters(ejs.MatchQuery('_all', $scope.queryTerm)))
+                .size(20)
+                .query(ejs.QueryStringQuery($scope.queryTerm + "*"))  
+                .fields(['Question', 'Response', 'Comment', 'Key'])
                 .doSearch();
+
+            //console.log(results);
 
             $scope.resultsArr.push(results);
         } else {
@@ -39,28 +44,60 @@ searchApp.controller('Twitter', function ($scope, ejsResource) {
         }
     };
 
+    $scope.getCount = function(){
+        try {
+            return String($scope.resultsArr[0].$$v.hits.total) + 
+                    " results (" + String($scope.resultsArr[0].$$v.took/1000) + " s)";
+        }
+        catch (err) {
+            return "";
+        }
+    }
 
-    $scope.renderResult = function(result){
-        // console.log(result);
+    $scope.renderResult = function(result, field){
+        //console.log(result);
         var resultText = "";
+
+        if (field == 'key')
+
+            if (result.fields.Key)
+                resultText = result._type + " #" + result.fields.Key[0];
+            else
+                resultText = result._type + " #" + result._id
+
+        else if (field == 'question')
+            resultText = result.fields.Question[0];
+        else if (field == 'response')
+            resultText = result.fields.Response[0];
+        else if (field == 'comment')
+            resultText = result.fields.Comment[0];
+
+        /*
         if (result.highlight)
             resultText = result.highlight.text[0];
         else if (result.fields.text)
             resultText = result.fields.text;
+        else if (result.fields.Question[0])
+            resultText = result.fields.Question[0] + field;
         else
             resultText = result._id;
-        
+        */
+
+        //console.log(resultText)
         return resultText;
     };
-    
+
+/*    
     $scope.renderResultMetadata = function (result) {
         var metadata = "Twetted by <a href=\"https://twitter.com/" + result.fields.user.screen_name + "\">" + result.fields.user.name + "</a>, on " + result.fields.created_at.split("T")[0];
         return metadata;
     };
-
+*/
     /*
      * facets
      */
+
+/*
     $scope.isActive = function (field, term) {
         return activeFilters.hasOwnProperty(field + term);
     };
@@ -69,7 +106,7 @@ searchApp.controller('Twitter', function ($scope, ejsResource) {
         $scope.resultsArr = [];
         results = statusRequest
             .query(applyFilters(ejs.MatchQuery('_all', $scope.queryTerm)))
-            .fields(['text', 'user', 'created_at'])
+            .fields(['Question', 'Compliance', 'Comment'])
             .doSearch();
 
         $scope.resultsArr.push(results);
@@ -83,7 +120,7 @@ searchApp.controller('Twitter', function ($scope, ejsResource) {
         }
         searchFacet();
     };
-
+*/
     var applyFilters = function(query) {
 
         var filter = null;
@@ -108,7 +145,7 @@ searchApp.controller('Twitter', function ($scope, ejsResource) {
         activeFilters = {};
         $scope.search();
     };
-
+/*
     $scope.renderFacetItem = function(term, count){
         // if the filter is activated, add [x] sign
         if ($scope.isActive('hashtag.text', term)) {
@@ -117,6 +154,7 @@ searchApp.controller('Twitter', function ($scope, ejsResource) {
         else
             return "<b>" + term + "</b> " + count;
     };
+*/
 
     /*
      * simple way for handling pagination
@@ -136,7 +174,7 @@ searchApp.controller('Twitter', function ($scope, ejsResource) {
             $scope.results = statusRequest
                 .query(applyFilters(ejs.MatchQuery('_all', $scope.queryTerm)))
                 .from(offset)
-                .fields(['text', 'user', 'created_at'])
+                .fields(['Question', 'Response', 'Comment', 'Key'])
                 .doSearch();
 
             $scope.resultsArr.push($scope.results);

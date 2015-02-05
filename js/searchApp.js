@@ -11,12 +11,12 @@ var searchApp = angular.module('searchApp', [
 ])
     .config(['$routeProvider', function($routeProvider){
         $routeProvider
-            .when('/stackoverflow', {
-                controller: 'Stackoverflow',
-                templateUrl: 'views/stack.html'
+            .when('/upload', {
+                controller: 'Upload',
+                templateUrl: 'views/upload.html'
             })
             .when('/', {
-                controller: 'Twitter',
-                templateUrl: 'views/twitter.html'
+                controller: 'RFxsearch',
+                templateUrl: 'views/rfxsearch.html'
             })
     }]);

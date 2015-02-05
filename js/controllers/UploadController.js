@@ -1,2 +1,2 @@
-searchApp.controller('Stackoverflow', function($scope, ejsResource){
+searchApp.controller('Upload', function($scope, ejsResource){
 });
