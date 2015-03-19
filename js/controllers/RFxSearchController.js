@@ -24,6 +24,9 @@ searchApp.controller('RFxsearch', function ($scope, ejsResource) {
     $scope.resultsArr = [];
 
     $scope.search = function() {
+
+        ga('send', 'event', 'rfxsearch', 'typed', $scope.queryTerm);
+
         activeFilters = {};
         $scope.resultsArr = [];
         if (!$scope.queryTerm == '') {
