@@ -34,7 +34,7 @@ searchApp.controller('RFxsearch', function ($scope, ejsResource) {
 //                .query(applyFilters(ejs.MatchQuery('_all', $scope.queryTerm)))
                 .size(20)
                 .query(ejs.QueryStringQuery($scope.queryTerm + "*"))  
-                .fields(['Question', 'Response', 'Comment', 'Key'])
+                .fields(['Question', 'Response', 'Comment', 'Key', 'URL'])
                 .doSearch();
 
             //console.log(results);
@@ -74,7 +74,8 @@ searchApp.controller('RFxsearch', function ($scope, ejsResource) {
             resultText = result.fields.Response[0];
         else if (field == 'comment')
             resultText = result.fields.Comment[0];
-
+        else if (field == 'url')
+            resultText = result.fields.URL[0];
         /*
         if (result.highlight)
             resultText = result.highlight.text[0];
@@ -177,7 +178,7 @@ searchApp.controller('RFxsearch', function ($scope, ejsResource) {
             $scope.results = statusRequest
                 .query(applyFilters(ejs.MatchQuery('_all', $scope.queryTerm)))
                 .from(offset)
-                .fields(['Question', 'Response', 'Comment', 'Key'])
+                .fields(['Question', 'Response', 'Comment', 'Key', 'URL'])
                 .doSearch();
 
             $scope.resultsArr.push($scope.results);
