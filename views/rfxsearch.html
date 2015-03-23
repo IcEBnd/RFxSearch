@@ -25,7 +25,7 @@
             <tbody ng-repeat="results in resultsArr">
                 <tr ng-repeat="doc in results.hits.hits">
                     <td>
-                        <a ng-href="{{renderResult(doc,'url')}}"><div ng-bind-html="renderResult(doc, 'key')"></div></a>
+                        <a ng-href="{{renderResult(doc,'url')}}" target="_new"><div ng-bind-html="renderResult(doc, 'key')"></div></a>
                     </td>
                     <td>
                         <div ng-bind-html="renderResult(doc, 'question')"></div>
