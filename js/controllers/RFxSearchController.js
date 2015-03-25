@@ -33,7 +33,8 @@ searchApp.controller('RFxsearch', function ($scope, ejsResource) {
             results = statusRequest
 //                .query(applyFilters(ejs.MatchQuery('_all', $scope.queryTerm)))
                 .size(20)
-                .query(ejs.QueryStringQuery($scope.queryTerm + "*"))  
+                .query(ejs.QueryStringQuery($scope.queryTerm + "*")
+                    .defaultOperator("AND"))  
                 .fields(['Question', 'Response', 'Comment', 'Key', 'URL'])
                 .doSearch();
 
