@@ -21,13 +21,13 @@
           <div id="importStatus">Status:</div>
         </div>
         <div>
-          RFx name: <input type="text" name="rfxName" required></input>
+          RFx name: <input type="text" id="rfxName" name="rfxName" required></input>
         </div>
         <div>
-          URL: <input type="text" name="rfxUrl" required></input>
+          URL: <input type="text" id="rfxUrl" name="rfxUrl" required></input>
         </div>
         <div>
-          Skip rows: <input type="number" name="skipRows" required></input>
+          Skip rows: <input type="number" id="skipRows" name="skipRows" required></input>
         </div>
       </div>
 
@@ -58,7 +58,7 @@
             response = JSON.parse(response);
 
             if (response['status'] == "error") {
-              status("Failed to import" + response['error']['message']);
+              status("Failed to import, " + response['error']['message']);
             } else {
               status("Successfully imported " + response['response']['items'].length + 
                      " items in " + response['response']['took'] + " ms." );
@@ -76,9 +76,13 @@
           },
           success: function(response) {
 
+            // Reset potential previous upload
+            $('#importTable').html('<thead id="importTableHeader"></thead><tbody></tbody>')
+            status('');
+
             drawTable(response);
-            $("#import").show()
-            $("#importTable").show()
+            $('#import').show()
+            $('#importTable').show()
 
             function drawTable(data) {
               for (var i = 0; i < data.length; i++) {

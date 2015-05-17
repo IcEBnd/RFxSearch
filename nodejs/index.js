@@ -31,7 +31,7 @@ var done = false;
 var PORT = 8080;
 
 // App
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false, limit: '50mb'}));
 
 app.use(multer({ dest: './uploads/',
   rename: function(fieldname, filename) {
@@ -108,6 +108,11 @@ app.post('/api/import', function(req, res) {
     }
   }
 //  console.log("k", idxKey, "q", idxQuestion, "i", idxImportance, "r", idxResponse, "c", idxComment);
+  if (!idxResponse && !idxQuestion) {
+    res.write(JSON.stringify({status:'error', error: {message: 'must select at least Response and Question.'}}));
+    res.end();
+    return;
+  }
 
   var client = new elasticsearch.Client({
     host: '192.168.59.103:9200'//,
