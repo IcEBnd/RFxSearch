@@ -1,0 +1,131 @@
+<html>
+  <head>
+    <title>File upload</title>
+  </head>
+  <body>
+    <form id="uploadForm"
+          enctype="multipart/form-data"
+          action="/api/upload"
+          method="post">
+      <input type="file" name="importFile" />
+      <input type="submit" value="Upload" name="submit">
+    </form>
+
+    <form id="importForm"
+          action="/api/import"
+          method="post">
+
+      <div>
+        <div>
+          <input type="submit" value="Import" name="import">
+          <input id="importTableJSON" type="hidden" name="table">
+        </div>
+        <div>
+          Skip rows: <input type="number" name="skipRows"></input>
+        </div>
+        <div>
+          RFx name: <input type="text" name="rfxName" required></input>
+        </div>
+        <div>
+          URL: <input type="text" name="rfxUrl" required></input>
+        </div>
+      </div>
+
+      <table id="importTable" border="1">
+        <thead id="importTableHeader"></thead>
+        <tbody></tobody>
+      </table>
+    </form>
+  </body>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#importForm').submit(function() {
+        $(this).ajaxSubmit({
+          error: function(xhr) {
+            status('Error: ' + xhr.status);
+          },
+          success: function(response) {
+            console.log("imported", response);
+          }
+        });
+
+        return false;
+      });
+
+      $('#uploadForm').submit(function() {
+        $(this).ajaxSubmit({
+          error: function(xhr) {
+            status('Error: ' + xhr.status);
+          },
+          success: function(response) {
+
+            drawTable(response);
+
+            function drawTable(data) {
+              for (var i = 0; i < data.length; i++) {
+                drawRow(i, data[i]);
+              }
+
+              $('#importTableHeader').append('<tr>');
+
+              for (var i = 0; i < data[0].length; i++) {
+                $('#importTableHeader').append( '<th>' + 
+                                                '  <select name="col' + i + '">' +
+                                                '    <option value=""></option>' +
+                                                '    <option value="key">Key</option>' +
+                                                '    <option value="question">Question</option>' +
+                                                '    <option value="importance">Importance</option>' +
+                                                '    <option value="response">Response</option>' +
+                                                '    <option value="comment">Comment</option>' +
+                                                '  </select>' +
+                                                '</th>');
+              }
+
+              $('#importTableHeader').append('</tr>');
+              $('#importTableJSON').val(JSON.stringify(data));
+            }
+
+            function drawRow(rowidx, rowData) {
+              var row = $('<tr />')
+              $('#importTable').append(row);
+
+              var l = rowData.length;
+              for (var i = 0; i < l; i++) {
+                row.append($('<td>' + rowData[i] + '</td>'));
+//                             '<input type="hidden" name="row' + rowidx + 'col' + i + '" value="' + rowData[i] + '">'));
+              }
+            }
+          }
+        });
+
+        return false;
+      });    
+    });
+  </script>
+</html>
+
+<!--<!DOCTYPE html>
+<html>
+    <head>
+        <title>test</title>
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="/js/jquery.zclip.min.js"></script>
+        <script src="/js/global.js"></script>
+        <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    </head>
+    <body>
+
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <label for="file">Filename:</label>
+                <input type="file" name="file" id="file"><br>
+                <input type="submit" name="submit" value="Submit">
+            </form>
+
+        </div>
+
+    </body>
+</html>
+-->
