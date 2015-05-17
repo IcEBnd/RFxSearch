@@ -57,8 +57,6 @@ app.get('/simple', function(req,res){
 
 app.post('/api/upload', function(req,res) {
   if (done == true) {
-//    console.log(req.files);
-
     res.setHeader('Content-Type', 'application/json');
     var filedata = fs.readFileSync(req.files.importFile.path); // TODO(icebnd): remove sync
 
@@ -70,7 +68,7 @@ app.post('/api/upload', function(req,res) {
 });
 
 app.post('/api/import', function(req, res) {
-  console.log(req.body)
+  //console.log(req.body)
 
   var ES_INDEX = "rfxsearch_v1";
 
@@ -109,20 +107,21 @@ app.post('/api/import', function(req, res) {
       break;
     }
   }
-  console.log("k", idxKey, "q", idxQuestion, "i", idxImportance, "r", idxResponse, "c", idxComment);
+//  console.log("k", idxKey, "q", idxQuestion, "i", idxImportance, "r", idxResponse, "c", idxComment);
 
   var client = new elasticsearch.Client({
-    host: '192.168.59.103:9200',
-    log: 'trace'
+    host: '192.168.59.103:9200'//,
+//    log: 'trace'
   });
 
+  var rfxBody = []
   for (var i = 0; i < table.length; i++) {
     var row = table[i]; // TODO(icebnd): add happy iso -> utf8 decoding
-    console.log(row);
+//    console.log(row);
 
     if (i < skipRows || !row[idxQuestion] || !row[idxResponse]) {
-      console.log(i, skipRows, idxQuestion, idxResponse);
-      console.log("skipping row", i, i < skipRows, !row[idxQuestion], !row[idxResponse]);
+//      console.log(i, skipRows, idxQuestion, idxResponse);
+//      console.log("skipping row", i, i < skipRows, !row[idxQuestion], !row[idxResponse]);
       continue;
     }
 
@@ -143,22 +142,25 @@ app.post('/api/import', function(req, res) {
       doc['Importance'] = row[idxImportance];
     }
 
-    var result = client.index({
-      index: ES_INDEX,
-      type: rfxName,
-      body: doc
-    }, function (error, response) {
-      if (error) {
-        console.log("es index error,", error, response);
-      } else {
-        console.log("es index success,", response);
-      }
-    });
-    console.log(result);
+    rfxBody.push({index: {_index: ES_INDEX, _type: rfxName}});
+    rfxBody.push(doc);
   }
 
-  console.log("for loop completed");
-  res.end();
+  //console.log(rfxBody);
+
+  client.bulk({
+    body: rfxBody
+  }, function (error, response) {
+      if (error) {
+//        console.log("es bulk error,", error, response);
+        res.write(JSON.stringify({status:'error', error: error, response: response}));
+        res.end();
+      } else {
+//        console.log("es bulk success,", response);
+        res.write(JSON.stringify({status:'success', error: error, response: response}));
+        res.end();
+      }
+  });
 });
 
 app.listen(PORT, function(){
