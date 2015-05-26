@@ -125,7 +125,7 @@ app.post('/api/import', function(req, res) {
   }
 
   client = new elasticsearch.Client({
-    host: '192.168.59.103:9200'//,
+    host: 'elasticsearch-rfxsearch-8cba7f00:9200'//, // TODO(ice): add configuration parameter 
 //    log: 'trace'
   });
 
