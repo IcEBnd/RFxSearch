@@ -27,6 +27,10 @@ var done = false;
 
     */
 
+/*jslint white: true */
+/*jslint unparam: true */
+/*jslint evil: true */ // TODO(ice): figure out a way to not use eval
+
 // Constants
 var PORT = 8080;
 
@@ -35,30 +39,29 @@ app.use(bodyParser.urlencoded({extended: false, limit: '50mb'}));
 
 app.use(multer({ dest: './uploads/',
   rename: function(fieldname, filename) {
-    return filename+Date.now();
+    return filename + Date.now();
   },
   onFileUploadStart: function(file) {
-    console.log(file.originalname + ' is starting ...')
+    console.log(file.originalname + ' is starting ...');
   },
   onFileUploadComplete: function(file) {
-    console.log(file.fieldname + ' uploaded to  ' + file.path)
-    done=true;
+    console.log(file.fieldname + ' uploaded to  ' + file.path);
+    done = true;
   }
-}));
+  }));
 
-app.get('/', function(req,res){
+app.get('/', function(req, res) {
   res.sendFile(__dirname + "/static/index.html");
 });
 
-app.get('/simple', function(req,res){
+app.get('/simple', function(req, res) {
   res.sendFile(__dirname + "/static/simple.html");
 });
 
-
-app.post('/api/upload', function(req,res) {
-  if (done == true) {
+app.post('/api/upload', function(req, res) {
+  if (done === true) {
     res.setHeader('Content-Type', 'application/json');
-    var filedata = fs.readFileSync(req.files.importFile.path); // TODO(icebnd): remove sync
+    var filedata = fs.readFileSync(req.files.importFile.path); // TODO(icebnd): remove synchronous
 
     csv.parse(filedata, function(err, data) {
       res.write(JSON.stringify(data));
@@ -75,17 +78,24 @@ app.post('/api/import', function(req, res) {
   var table = JSON.parse(req.body.table);
   var rfxName = req.body.rfxName;
   var rfxUrl = req.body.rfxUrl;
-  var skipRows = parseInt(req.body.skipRows);
+  var skipRows = parseInt(req.body.skipRows, 10);
   var idxKey = null;
   var idxQuestion = null;
   var idxImportance = null;
   var idxResponse = null;
   var idxComment = null;
 
+  var i;
+  var col;
+  var client;
+  var rfxBody;
+  var row;
+  var doc;
+
   // convert from col[0-9] to var idx*
-  for (var i = 0; i < 50; i++) {
-    var col = eval("req.body.col" + i);
-    if (typeof col != 'undefined') {
+  for (i = 0; i < 50; i++) {
+    col = eval("req.body.col" + i);
+    if (col !== undefined) {
       switch(col) {
         case "key":
           idxKey = i;
@@ -114,41 +124,41 @@ app.post('/api/import', function(req, res) {
     return;
   }
 
-  var client = new elasticsearch.Client({
+  client = new elasticsearch.Client({
     host: '192.168.59.103:9200'//,
 //    log: 'trace'
   });
 
-  var rfxBody = []
-  for (var i = 0; i < table.length; i++) {
-    var row = table[i]; // TODO(icebnd): add happy iso -> utf8 decoding
+  rfxBody = [];
+  for (i = 0; i < table.length; i++) {
+    row = table[i]; // TODO(icebnd): add happy iso -> utf8 decoding
 //    console.log(row);
 
-    if (i < skipRows || !row[idxQuestion] || !row[idxResponse]) {
+    if (i >= skipRows && row[idxQuestion] && row[idxResponse]) {
+      doc = {
+        'Question': row[idxQuestion],
+        'Response': row[idxResponse],
+        'URL': rfxUrl
+      };
+      if (idxKey !== undefined) {
+        doc.Key = row[idxKey];
+      } else {
+        doc.Key = i;
+      }
+      if (idxComment !== undefined) {
+        doc.Comment = row[idxComment];
+      }
+      if (idxImportance !== undefined) {
+        doc.Importance = row[idxImportance];
+      }
+
+      rfxBody.push({index: {_index: ES_INDEX, _type: rfxName}});
+      rfxBody.push(doc);
+    }
+//    else {
 //      console.log(i, skipRows, idxQuestion, idxResponse);
 //      console.log("skipping row", i, i < skipRows, !row[idxQuestion], !row[idxResponse]);
-      continue;
-    }
-
-    var doc = {
-      'Question': row[idxQuestion],
-      'Response': row[idxResponse],
-      'URL': rfxUrl
-    }
-    if (idxKey) {
-      doc['Key'] = row[idxKey]
-    } else {
-      doc['Key'] = i;
-    }
-    if (idxComment) {
-      doc['Comment'] = row[idxComment];
-    }
-    if (idxImportance) {
-      doc['Importance'] = row[idxImportance];
-    }
-
-    rfxBody.push({index: {_index: ES_INDEX, _type: rfxName}});
-    rfxBody.push(doc);
+//    }
   }
 
   //console.log(rfxBody);
