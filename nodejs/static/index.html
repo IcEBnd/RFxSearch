@@ -49,6 +49,7 @@
 
     $(document).ready(function() {
       $('#importForm').submit(function() {
+        status("Importing..");
         $(this).ajaxSubmit({
           error: function(xhr) {
             status('Error: ' + xhr.statusText);
