@@ -67,7 +67,7 @@
               if (response['status'] == "error") {
                 status('Failed to delete "' + $('#deleteRFx').val() + '", ' + response.error);
               } else {
-                status('Successfully deleted' );
+                status('Successfully deleted ' +  response.response.rfx);
               }
 
               updateList();

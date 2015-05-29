@@ -75,15 +75,15 @@ app.get('/api/list', function(req, res) {
   rfxes = [];
   client.indices.getMapping({index: 'rfxsearch_v1'}, function(error, result, response) {
     if(error === undefined) {
-      console.log(result);
+//      console.log(result);
 
       for (key in result.rfxsearch_v1.mappings) { 
         if (result.rfxsearch_v1.mappings.hasOwnProperty(key)) {
-          console.log(key);
+//          console.log(key);
           rfxes.push([key, '?']);
         }
       }
-      console.log(rfxes);
+//      console.log(rfxes);
 
       res.write(JSON.stringify({status:'success', error: error, response: JSON.stringify(rfxes)}));
       res.end();
@@ -112,16 +112,16 @@ app.post('/api/delete', function(req, res) {
 //  console.log(options);
 
   request = http.request(options, function(result) {
-    console.log('STATUS: ' + result.statusCode);
-    console.log('HEADERS: ' + JSON.stringify(result.headers));
+//    console.log('STATUS: ' + result.statusCode);
+//    console.log('HEADERS: ' + JSON.stringify(result.headers));
     result.setEncoding('utf8');
     result.on('data', function (chunk) {
-      console.log('BODY: ' + chunk);
+//      console.log('BODY: ' + chunk);
 
       data = JSON.parse(chunk);
-      console.log(data);
+//      console.log(data);
       if (data.acknowledged === true) {
-        res.write(JSON.stringify( {status:'success', error: null, response: {message: 'deleted ' + req.body.deleteRFx}} ));
+        res.write(JSON.stringify( {status:'success', error: null, response: {rfx: req.body.deleteRFx}} ));
         res.end();
       }
       else {
@@ -139,8 +139,6 @@ app.post('/api/delete', function(req, res) {
   });
 
   request.end();
-
-  console.log("deleted?");
 
 /*
   http.request(options, function(response, error) {
