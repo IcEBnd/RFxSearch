@@ -3,8 +3,9 @@ var multer = require('multer');
 //var crypto = require('crypto');
 var csv = require('csv');
 var fs = require('fs');
-var bodyParser = require("body-parser");
+var bodyParser = require('body-parser');
 var elasticsearch = require('elasticsearch');
+var http = require('http');
 
 var app = express();
 var done = false;
@@ -33,6 +34,8 @@ var done = false;
 
 // Constants
 var PORT = 8080;
+var ES_HOST = 'elasticsearch-rfxsearch-8cba7f00:9200';
+//var ES_HOST = '192.168.59.103:9200';
 
 // App
 app.use(bodyParser.urlencoded({extended: false, limit: '50mb'}));
@@ -54,8 +57,127 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + "/static/index.html");
 });
 
-app.get('/simple', function(req, res) {
-  res.sendFile(__dirname + "/static/simple.html");
+app.get('/list', function(req, res) {
+  res.sendFile(__dirname + "/static/list.html");
+});
+
+app.get('/api/list', function(req, res) {
+  var client;
+  var key;
+  var rfxes;
+
+  res.setHeader('Content-Type', 'application/json');
+
+  client = new elasticsearch.Client({
+    host: ES_HOST //, // TODO(ice): add configuration parameter
+//    log: 'trace'
+  });
+
+  rfxes = [];
+  client.indices.getMapping({index: 'rfxsearch_v1'}, function(error, result, response) {
+    if(error === undefined) {
+      console.log(result);
+
+      for (key in result.rfxsearch_v1.mappings) { 
+        if (result.rfxsearch_v1.mappings.hasOwnProperty(key)) {
+          console.log(key);
+          rfxes.push([key, '?']);
+        }
+      }
+      console.log(rfxes);
+
+      res.write(JSON.stringify({status:'success', error: error, response: JSON.stringify(rfxes)}));
+      res.end();
+    }
+    else {
+      res.write(JSON.stringify({status:'error', error: error, response: ""}));
+      res.end();
+    }
+  });
+});
+
+app.post('/api/delete', function(req, res) {
+  var request;
+  var options;
+  var data;
+
+  console.log('deleting "' + req.body.deleteRFx + '"');
+  res.setHeader('Content-Type', 'application/json');
+
+  options = {
+    host: ES_HOST.split(':')[0],
+    port: ES_HOST.split(':')[1],
+    path: '/rfxsearch_v1/' + encodeURIComponent(req.body.deleteRFx),
+    method: 'DELETE'
+  };
+//  console.log(options);
+
+  request = http.request(options, function(result) {
+    console.log('STATUS: ' + result.statusCode);
+    console.log('HEADERS: ' + JSON.stringify(result.headers));
+    result.setEncoding('utf8');
+    result.on('data', function (chunk) {
+      console.log('BODY: ' + chunk);
+
+      data = JSON.parse(chunk);
+      console.log(data);
+      if (data.acknowledged === true) {
+        res.write(JSON.stringify( {status:'success', error: null, response: {message: 'deleted ' + req.body.deleteRFx}} ));
+        res.end();
+      }
+      else {
+        res.write(JSON.stringify( {status:'error', error: 'unknown response, ' + JSON.stringify(chunk)}));
+        res.end();
+      }
+    });
+  });
+
+  request.on('error', function(e) {
+    console.log('problem with request: ' + e.message);
+
+    res.write(JSON.stringify( {status:'error', error: e.message, response: e} ));
+    res.end();
+  });
+
+  request.end();
+
+  console.log("deleted?");
+
+/*
+  http.request(options, function(response, error) {
+    if(error === undefined) {
+      res.write(JSON.stringify( {status:'success', error: {message: 'deleted ' + req.body.deleteRFx}} ));
+      res.end();
+    }
+    else {
+      console.log(error);
+      res.write(JSON.stringify( {status:'error', error: error.toString(), response: response} ));
+      res.end();
+    }
+  }).end();
+*/
+/*
+  client = new elasticsearch.Client({
+    host: ES_HOST , // TODO(ice): add configuration parameter
+    log: 'trace'
+  });
+
+  client.bulk({
+    body: [
+      { delete: { _index: 'rfxsearch_v1', _type: req.body.deleteRFx} },
+    ]
+  }, function (error, response) {
+    if(error === undefined) {
+      res.write(JSON.stringify( {status:'success', error: {message: 'deleted ' + req.body.deleteRFx}} ));
+      res.end();
+    }
+    else {
+      console.log(error);
+      res.write(JSON.stringify( {status:'error', error: error.toString(), response: response} ));
+      res.end();
+    }
+  });
+*/
 });
 
 app.post('/api/upload', function(req, res) {
@@ -125,7 +247,7 @@ app.post('/api/import', function(req, res) {
   }
 
   client = new elasticsearch.Client({
-    host: 'elasticsearch-rfxsearch-8cba7f00:9200'//, // TODO(ice): add configuration parameter 
+    host: ES_HOST //, // TODO(ice): add configuration parameter 
 //    log: 'trace'
   });
 
