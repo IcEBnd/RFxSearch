@@ -52,13 +52,15 @@ app.use(multer({ dest: './uploads/',
   }
   }));
 
+/*
 app.get('/', function(req, res) {
-  res.sendFile(__dirname + "/static/index.html");
+  res.sendFile(__dirname + "/static/upload.html");
 });
 
 app.get('/list', function(req, res) {
   res.sendFile(__dirname + "/static/list.html");
 });
+*/
 
 app.get('/api/list', function(req, res) {
   var client;
@@ -260,6 +262,8 @@ app.post('/api/import', function(req, res) {
       }
   });
 });
+
+app.use(express.static(__dirname + '/static'));
 
 app.listen(PORT, function(){
   console.log("Working on port", PORT);
