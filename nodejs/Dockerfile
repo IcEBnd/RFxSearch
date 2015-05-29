@@ -13,7 +13,7 @@ RUN cd /src; npm install
 RUN npm install -g nodemon
 
 EXPOSE  8080
-#CMD ["node", "/src/index.js"]
-CMD ["nodemon", "/src/index.js"]
+CMD ["node", "/src/index.js"]
+#CMD ["nodemon", "/src/index.js"]
 #CMD ["forever", "-w /src/index.js"]
 
