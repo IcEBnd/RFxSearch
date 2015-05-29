@@ -68,7 +68,7 @@ app.get('/api/list', function(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
   client = new elasticsearch.Client({
-    host: ES_HOST //, // TODO(ice): add configuration parameter
+    host: ES_HOST //,
 //    log: 'trace'
   });
 
@@ -139,42 +139,6 @@ app.post('/api/delete', function(req, res) {
   });
 
   request.end();
-
-/*
-  http.request(options, function(response, error) {
-    if(error === undefined) {
-      res.write(JSON.stringify( {status:'success', error: {message: 'deleted ' + req.body.deleteRFx}} ));
-      res.end();
-    }
-    else {
-      console.log(error);
-      res.write(JSON.stringify( {status:'error', error: error.toString(), response: response} ));
-      res.end();
-    }
-  }).end();
-*/
-/*
-  client = new elasticsearch.Client({
-    host: ES_HOST , // TODO(ice): add configuration parameter
-    log: 'trace'
-  });
-
-  client.bulk({
-    body: [
-      { delete: { _index: 'rfxsearch_v1', _type: req.body.deleteRFx} },
-    ]
-  }, function (error, response) {
-    if(error === undefined) {
-      res.write(JSON.stringify( {status:'success', error: {message: 'deleted ' + req.body.deleteRFx}} ));
-      res.end();
-    }
-    else {
-      console.log(error);
-      res.write(JSON.stringify( {status:'error', error: error.toString(), response: response} ));
-      res.end();
-    }
-  });
-*/
 });
 
 app.post('/api/upload', function(req, res) {
