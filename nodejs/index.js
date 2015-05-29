@@ -34,8 +34,7 @@ var done = false;
 
 // Constants
 var PORT = 8080;
-var ES_HOST = 'elasticsearch-rfxsearch-8cba7f00:9200';
-//var ES_HOST = '192.168.59.103:9200';
+var ES_HOST = 'es:9200';
 
 // App
 app.use(bodyParser.urlencoded({extended: false, limit: '50mb'}));
