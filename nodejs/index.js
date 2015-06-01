@@ -225,15 +225,16 @@ app.post('/api/import', function(req, res) {
         'Response': row[idxResponse],
         'URL': rfxUrl
       };
-      if (idxKey !== undefined) {
+
+      if (idxKey !== null) {
         doc.Key = row[idxKey];
       } else {
         doc.Key = i;
       }
-      if (idxComment !== undefined) {
+      if (idxComment !== null) {
         doc.Comment = row[idxComment];
       }
-      if (idxImportance !== undefined) {
+      if (idxImportance !== null) {
         doc.Importance = row[idxImportance];
       }
 
