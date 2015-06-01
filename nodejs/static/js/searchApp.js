@@ -9,7 +9,7 @@ var searchApp = angular.module('searchApp', [
     'ngSanitize',
     'infinite-scroll'
 ])
-    .config(['$routeProvider', function($routeProvider){
+    .config(['$routeProvider', function($routeProvider) {
         $routeProvider
             .when('/upload', {
                 controller: 'Upload',
@@ -22,5 +22,5 @@ var searchApp = angular.module('searchApp', [
             .when('/', {
                 controller: 'RFxsearch',
                 templateUrl: 'views/rfxsearch.html'
-            })
+            });
     }]);

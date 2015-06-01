@@ -1,4 +1,4 @@
-searchApp.controller('RFxlist', function ($scope, ejsResource) {
+searchApp.controller('RFxlist', function($scope, ejsResource) {
     var $btn;
 
     $(document).ready(function() {
@@ -12,7 +12,7 @@ searchApp.controller('RFxlist', function ($scope, ejsResource) {
             /* there is an activeElement at all */
             $btn.length &&
 
-            /* it's a child of the form */ 
+            /* it's a child of the form */
             $('#deleteForm').has($btn) &&
 
             /* it's really a submit element */
@@ -26,23 +26,23 @@ searchApp.controller('RFxlist', function ($scope, ejsResource) {
             console.log($btn.val());
         }
 
-        var r = confirm("Delete " + $btn.val() + "?");
+        var r = confirm('Delete ' + $btn.val() + '?');
         console.log(r);
 
-        if(r) {
+        if (r) {
           $('#deleteRFx').val($btn.val());
-          status("Deleting..");
+          status('Deleting..');
           $(this).ajaxSubmit({
             error: function(xhr) {
               status('Error: ' + xhr.statusText);
             },
             success: function(response) {
-              console.log("deleted", response);
+              console.log('deleted', response);
 
-              if (response['status'] == "error") {
+              if (response['status'] == 'error') {
                 status('Failed to delete "' + $('#deleteRFx').val() + '", ' + response.error);
               } else {
-                status('Successfully deleted ' +  response.response.rfx);
+                status('Successfully deleted ' + response.response.rfx);
               }
 
               updateList();
@@ -54,7 +54,7 @@ searchApp.controller('RFxlist', function ($scope, ejsResource) {
       });
 
       function drawRow(rowIdx, rowData) {
-        var row = $('<tr />')
+        var row = $('<tr />');
         $('#importTable').append(row);
 
         var l = rowData.length;
@@ -63,17 +63,17 @@ searchApp.controller('RFxlist', function ($scope, ejsResource) {
           row.append($('<td>' + rowData[i] + '</td>'));
         }
 
-        row.append('<input type="submit" value="' + rowData[0] + '" name="delete' + rowIdx + '">')
+        row.append('<input type="submit" value="' + rowData[0] + '" name="delete' + rowIdx + '">');
       }
 
       function status(text) {
-        $("#deleteStatus").text(text);
+        $('#deleteStatus').text(text);
         console.log('Status: ' + text);
       }
 
       function updateList() {
         $('#importTableBody').empty();
-        $.getJSON( "api/list", function( response ) {
+        $.getJSON('api/list', function(response) {
           if (response.status === 'error') {
             status('Failed, ' + response.error.message);
           }

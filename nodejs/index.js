@@ -1,5 +1,5 @@
 /**
- * @fileoverview Node.JS application to serve angularjs app and handle upload/list functionality. 
+ * @fileoverview Node.JS application to serve angularjs app and handle upload/list functionality.
  */
 
 /*jslint white: true */
@@ -19,6 +19,7 @@ var done = false;
 // Constants
 var PORT = 8080;
 var ES_HOST = 'es:9200';
+var ES_INDEX = 'rfxsearch_v1';
 
 // App
 app.use(bodyParser.urlencoded({extended: false, limit: '50mb'}));
@@ -50,10 +51,10 @@ app.get('/api/list', function(req, res) {
 
   rfxes = [];
   client.indices.getMapping({index: 'rfxsearch_v1'}, function(error, result, response) {
-    if(error === undefined) {
+    if (error === undefined) {
 //      console.log(result);
 
-      for (key in result.rfxsearch_v1.mappings) { 
+      for (key in result.rfxsearch_v1.mappings) {
         if (result.rfxsearch_v1.mappings.hasOwnProperty(key)) {
 //          console.log(key);
           rfxes.push([key, '?']);
@@ -61,11 +62,11 @@ app.get('/api/list', function(req, res) {
       }
 //      console.log(rfxes);
 
-      res.write(JSON.stringify({status:'success', error: error, response: JSON.stringify(rfxes)}));
+      res.write(JSON.stringify({status: 'success', error: error, response: JSON.stringify(rfxes)}));
       res.end();
     }
     else {
-      res.write(JSON.stringify({status:'error', error: error, response: ""}));
+      res.write(JSON.stringify({status: 'error', error: error, response: ''}));
       res.end();
     }
   });
@@ -91,17 +92,17 @@ app.post('/api/delete', function(req, res) {
 //    console.log('STATUS: ' + result.statusCode);
 //    console.log('HEADERS: ' + JSON.stringify(result.headers));
     result.setEncoding('utf8');
-    result.on('data', function (chunk) {
+    result.on('data', function(chunk) {
 //      console.log('BODY: ' + chunk);
 
       data = JSON.parse(chunk);
 //      console.log(data);
       if (data.acknowledged === true) {
-        res.write(JSON.stringify( {status:'success', error: null, response: {rfx: req.body.deleteRFx}} ));
+        res.write(JSON.stringify({status: 'success', error: null, response: {rfx: req.body.deleteRFx}}));
         res.end();
       }
       else {
-        res.write(JSON.stringify( {status:'error', error: 'unknown response, ' + JSON.stringify(chunk)}));
+        res.write(JSON.stringify({status: 'error', error: 'unknown response, ' + JSON.stringify(chunk)}));
         res.end();
       }
     });
@@ -110,7 +111,7 @@ app.post('/api/delete', function(req, res) {
   request.on('error', function(e) {
     console.log('problem with request: ' + e.message);
 
-    res.write(JSON.stringify( {status:'error', error: e.message, response: e} ));
+    res.write(JSON.stringify({status: 'error', error: e.message, response: e}));
     res.end();
   });
 
@@ -131,9 +132,6 @@ app.post('/api/upload', function(req, res) {
 
 app.post('/api/import', function(req, res) {
   //console.log(req.body)
-
-  var ES_INDEX = "rfxsearch_v1";
-
   var table = JSON.parse(req.body.table);
   var rfxName = req.body.rfxName;
   var rfxUrl = req.body.rfxUrl;
@@ -153,22 +151,22 @@ app.post('/api/import', function(req, res) {
 
   // convert from col[0-9] to var idx*
   for (i = 0; i < 50; i++) {
-    col = eval("req.body.col" + i);
+    col = eval('req.body.col' + i);
     if (col !== undefined) {
-      switch(col) {
-        case "key":
+      switch (col) {
+        case 'key':
           idxKey = i;
           break;
-        case "question":
+        case 'question':
           idxQuestion = i;
           break;
-        case "importance":
+        case 'importance':
           idxImportance = i;
           break;
-        case "response":
+        case 'response':
           idxResponse = i;
           break;
-        case "comment":
+        case 'comment':
           idxComment = i;
           break;
       }
@@ -178,13 +176,13 @@ app.post('/api/import', function(req, res) {
   }
 //  console.log("k", idxKey, "q", idxQuestion, "i", idxImportance, "r", idxResponse, "c", idxComment);
   if (!idxResponse && !idxQuestion) {
-    res.write(JSON.stringify({status:'error', error: {message: 'must select at least Response and Question.'}}));
+    res.write(JSON.stringify({status: 'error', error: {message: 'must select at least Response and Question.'}}));
     res.end();
     return;
   }
 
   client = new elasticsearch.Client({
-    host: ES_HOST //, // TODO(ice): add configuration parameter 
+    host: ES_HOST //, // TODO(ice): add configuration parameter
 //    log: 'trace'
   });
 
@@ -225,14 +223,14 @@ app.post('/api/import', function(req, res) {
 
   client.bulk({
     body: rfxBody
-  }, function (error, response) {
+  }, function(error, response) {
       if (error) {
 //        console.log("es bulk error,", error, response);
-        res.write(JSON.stringify({status:'error', error: error, response: response}));
+        res.write(JSON.stringify({status: 'error', error: error, response: response}));
         res.end();
       } else {
 //        console.log("es bulk success,", response);
-        res.write(JSON.stringify({status:'success', error: error, response: response}));
+        res.write(JSON.stringify({status: 'success', error: error, response: response}));
         res.end();
       }
   });
@@ -240,6 +238,6 @@ app.post('/api/import', function(req, res) {
 
 app.use(express.static(__dirname + '/static'));
 
-app.listen(PORT, function(){
-  console.log("Working on port", PORT);
+app.listen(PORT, function() {
+  console.log('Working on port', PORT);
 });

@@ -1,5 +1,5 @@
-searchApp.controller('RFxsearch', function ($scope, ejsResource) {
-    var ejs = ejsResource("http://" + window.location.hostname + ":9200");
+searchApp.controller('RFxsearch', function($scope, ejsResource) {
+    var ejs = ejsResource('http://' + window.location.hostname + ':9200');
     var index = 'rfxsearch_v1';
 
 /*
@@ -14,7 +14,7 @@ searchApp.controller('RFxsearch', function ($scope, ejsResource) {
         .size(10);
 */
     var statusRequest = ejs.Request()
-        .indices(index)
+        .indices(index);
 //        .types('sometype')
 //        .highlight(highlightPost)
 //        .facet(hashtagFacet);
@@ -33,8 +33,8 @@ searchApp.controller('RFxsearch', function ($scope, ejsResource) {
             results = statusRequest
 //                .query(applyFilters(ejs.MatchQuery('_all', $scope.queryTerm)))
                 .size(20)
-                .query(ejs.QueryStringQuery($scope.queryTerm + "*")
-                    .defaultOperator("AND"))  
+                .query(ejs.QueryStringQuery($scope.queryTerm + '*')
+                    .defaultOperator('AND'))
                 .fields(['Question', 'Response', 'Comment', 'Key', 'URL'])
                 .doSearch();
 
@@ -48,26 +48,26 @@ searchApp.controller('RFxsearch', function ($scope, ejsResource) {
         }
     };
 
-    $scope.getCount = function(){
+    $scope.getCount = function() {
         try {
-            return String($scope.resultsArr[0].$$v.hits.total) + 
-                    " results (" + String($scope.resultsArr[0].$$v.took/1000) + " s)";
+            return String($scope.resultsArr[0].$$v.hits.total) +
+                    ' results (' + String($scope.resultsArr[0].$$v.took / 1000) + ' s)';
         }
         catch (err) {
-            return "";
+            return '';
         }
-    }
+    };
 
-    $scope.renderResult = function(result, field){
+    $scope.renderResult = function(result, field) {
         //console.log(result);
-        var resultText = "";
+        var resultText = '';
 
         if (field == 'key')
 
             if (result.fields.Key)
-                resultText = result._type + " #" + result.fields.Key[0];
+                resultText = result._type + ' #' + result.fields.Key[0];
             else
-                resultText = result._type + " #" + result._id
+                resultText = result._type + ' #' + result._id;
 
         else if (field == 'question')
             resultText = result.fields.Question[0];
@@ -92,7 +92,7 @@ searchApp.controller('RFxsearch', function ($scope, ejsResource) {
         return resultText;
     };
 
-/*    
+/*
     $scope.renderResultMetadata = function (result) {
         var metadata = "Twetted by <a href=\"https://twitter.com/" + result.fields.user.screen_name + "\">" + result.fields.user.name + "</a>, on " + result.fields.created_at.split("T")[0];
         return metadata;
@@ -141,9 +141,9 @@ searchApp.controller('RFxsearch', function ($scope, ejsResource) {
         return filter ? ejs.FilteredQuery(query, filter) : query;
     };
 
-    $scope.isFiltered = function () {
+    $scope.isFiltered = function() {
       if (!jQuery.isEmptyObject(activeFilters))
-        return "<b>Reset search</b>";
+        return '<b>Reset search</b>';
     };
 
     $scope.resetFilter = function() {
@@ -169,9 +169,9 @@ searchApp.controller('RFxsearch', function ($scope, ejsResource) {
     $scope.per_page = 10;
     $scope.page = 0;
 
-    $scope.show_more = function () {
+    $scope.show_more = function() {
         $scope.page += 1;
-        $scope.searchMore($scope.page*$scope.per_page);
+        $scope.searchMore($scope.page * $scope.per_page);
     };
 
     $scope.searchMore = function(offset) {
