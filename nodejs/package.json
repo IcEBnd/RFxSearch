@@ -1,14 +1,14 @@
 {
-  "name": "docker-centos-hello",
+  "name": "rfxsearch",
   "private": true,
   "version": "0.0.1",
-  "description": "Node.js Hello world app on CentOS using docker",
+  "description": "Simple application to search through Question and Answer styled documents used in RFx:s",
   "author": "Karl IcEBnd Andersson",
   "dependencies": {
     "body-parser": "^1.12.4",
     "csv": "^0.4.2",
     "elasticsearch": "^4.0.2",
-    "express": "~4.11.2",
+    "express": "^4.11.2",
     "fs": "0.0.2",
     "multer": "^0.1.8"
   }

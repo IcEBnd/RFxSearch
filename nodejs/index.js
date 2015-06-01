@@ -1,6 +1,12 @@
+/**
+ * @fileoverview Node.JS application to serve angularjs app and handle upload/list functionality. 
+ */
+
+/*jslint white: true */
+/*jslint unparam: true */
+/*jslint evil: true */ // TODO(ice): figure out a way to not use eval
 var express = require('express');
 var multer = require('multer');
-//var crypto = require('crypto');
 var csv = require('csv');
 var fs = require('fs');
 var bodyParser = require('body-parser');
@@ -9,28 +15,6 @@ var http = require('http');
 
 var app = express();
 var done = false;
-
-/*
-   flow call:
-
-   GET /upload => upload page
-   POST => /upload
-
-   present all columns and allow for selection of which column should have which meaning
-   i.e.
-    parser.add_argument('-k', '--idx-key', help='Column for Key', type=int)
-    parser.add_argument('-q', '--idx-question', help='Column for Question', type=int, required=True)
-    parser.add_argument('-i', '--idx-importance', help='Column for Importance', type=int)
-    parser.add_argument('-r', '--idx-response', help='Column for Response', type=int, required=True)
-    parser.add_argument('-c', '--idx-comment', help='Column for Comment', type=int)
-
-    parser.add_argument('-s', '--skip-rows', help='Skip this many rows', type=int)
-
-    */
-
-/*jslint white: true */
-/*jslint unparam: true */
-/*jslint evil: true */ // TODO(ice): figure out a way to not use eval
 
 // Constants
 var PORT = 8080;
@@ -51,16 +35,6 @@ app.use(multer({ dest: './uploads/',
     done = true;
   }
   }));
-
-/*
-app.get('/', function(req, res) {
-  res.sendFile(__dirname + "/static/upload.html");
-});
-
-app.get('/list', function(req, res) {
-  res.sendFile(__dirname + "/static/list.html");
-});
-*/
 
 app.get('/api/list', function(req, res) {
   var client;
