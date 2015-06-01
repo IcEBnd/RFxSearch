@@ -75,7 +75,7 @@ searchApp.controller('RFxlist', function($scope, ejsResource) {
         $('#importTableBody').empty();
         $.getJSON('api/list', function(response) {
           if (response.status === 'error') {
-            status('Failed, ' + response.error.message);
+            status('Failed, ' + response.error);
           }
           else {
             var data = JSON.parse(response.response);

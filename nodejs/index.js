@@ -38,38 +38,68 @@ app.use(multer({ dest: './uploads/',
   }));
 
 app.get('/api/list', function(req, res) {
-  var client;
   var key;
-  var rfxes;
+  var rfxes = [];
+  var terms;
+  var request;
+  var options;
+  var data;
+  var requestData = '{"facets": {"count_by_type": {"terms": {"field": "_type"}}}}';
 
   res.setHeader('Content-Type', 'application/json');
 
-  client = new elasticsearch.Client({
-    host: ES_HOST //,
-//    log: 'trace'
-  });
+  options = {
+    host: ES_HOST.split(':')[0],
+    port: ES_HOST.split(':')[1],
+    path: '/rfxsearch_v1/_search?search_type=count',
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Length': requestData.length
+    }
+  };
+  // console.log(options);
 
-  rfxes = [];
-  client.indices.getMapping({index: 'rfxsearch_v1'}, function(error, result, response) {
-    if (error === undefined) {
-//      console.log(result);
+  request = http.request(options, function(result) {
+    // console.log('STATUS: ' + result.statusCode);
+    // console.log('HEADERS: ' + JSON.stringify(result.headers));
+    result.setEncoding('utf8');
 
-      for (key in result.rfxsearch_v1.mappings) {
-        if (result.rfxsearch_v1.mappings.hasOwnProperty(key)) {
-//          console.log(key);
-          rfxes.push([key, '?']);
+    result.on('data', function(chunk) {
+      // console.log('BODY: ' + chunk);
+
+      data = JSON.parse(chunk);
+      // console.log(data);
+      if (result.statusCode === 200) {
+        terms = data.facets.count_by_type.terms;
+        // console.log(terms);
+
+        for (key in terms) {
+            // console.log(terms[key]);
+            rfxes.push([terms[key].term, terms[key].count]);
         }
+        // console.log(rfxes);
+        res.write(JSON.stringify({status: 'success', error: null, response: JSON.stringify(rfxes)}));
       }
-//      console.log(rfxes);
-
-      res.write(JSON.stringify({status: 'success', error: error, response: JSON.stringify(rfxes)}));
+      else if (result.statusCode === 400) {
+        res.write(JSON.stringify({status: 'error', error: data.error, response: ''}));
+      }
+      else {
+        res.write(JSON.stringify({status: 'error', error: 'unknown error', response: ''}));
+      }
       res.end();
-    }
-    else {
-      res.write(JSON.stringify({status: 'error', error: error, response: ''}));
-      res.end();
-    }
+    });
   });
+
+  request.on('error', function(e) {
+    console.log('problem with request: ' + e.message);
+
+    res.write(JSON.stringify({status: 'error', error: e.message, response: e}));
+    res.end();
+  });
+
+  request.write(requestData);
+  request.end();
 });
 
 app.post('/api/delete', function(req, res) {
