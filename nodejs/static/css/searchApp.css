@@ -25,3 +25,14 @@
 .fm-right {
     text-align: right;
 }
+
+#footer, #footer a {
+  color: #c5c5c5;
+  font-family: Arial, sans-serif;
+  font-size: 0.9em;
+}
+#footer {
+  margin-top: 20px;
+  text-align: center;
+  width: 100%;
+}
