@@ -34,8 +34,12 @@ app.use(multer({ dest: './uploads/',
   onFileUploadComplete: function(file) {
     console.log(file.fieldname + ' uploaded to  ' + file.path);
     done = true;
+  },
+  onError: function(error, next) {
+    console.log(error);
+    next(error);
   }
-  }));
+}));
 
 app.get('/api/list', function(req, res) {
   var key;
