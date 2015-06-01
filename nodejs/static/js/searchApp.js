@@ -15,6 +15,10 @@ var searchApp = angular.module('searchApp', [
                 controller: 'Upload',
                 templateUrl: 'views/upload.html'
             })
+            .when('/list', {
+                controller: 'RFxlist',
+                templateUrl: 'views/list.html'
+            })
             .when('/', {
                 controller: 'RFxsearch',
                 templateUrl: 'views/rfxsearch.html'
