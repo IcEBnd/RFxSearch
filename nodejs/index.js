@@ -48,7 +48,7 @@ app.get('/api/list', function(req, res) {
   var request;
   var options;
   var data;
-  var requestData = '{"facets": {"count_by_type": {"terms": {"field": "_type"}}}}';
+  var requestData = '{"facets": {"count_by_type": {"terms": {"field": "_type", "size" : 1000000, "order" : "term"}}}}';
 
   res.setHeader('Content-Type', 'application/json');
 
